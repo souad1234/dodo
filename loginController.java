@@ -7,6 +7,7 @@ import com.jfoenix.controls.*;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 
+import dao.LoginUserDao;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import javafx.stage.*;
 import javafx.util.Duration;
+import model.LoginUserModel;
 
 import javax.json.*;
 import java.io.*;
@@ -140,6 +142,7 @@ public class loginController extends CommonMethods implements Initializable{
                     stage.close();
                     loginsuccess=false;
                     CommonMethods.username=userfield.getText();
+                    CommonMethods.password=passfield.getText();
                     loadHome();
                 }else{
                     rotateButton(loginbtn);
@@ -189,12 +192,7 @@ public class loginController extends CommonMethods implements Initializable{
         Thread t=new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-					loginsuccess=checkUser();
-				} catch (ClassNotFoundException | SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                loginsuccess=true;
             }
         });
         t.start();
@@ -212,7 +210,7 @@ public class loginController extends CommonMethods implements Initializable{
             Parent parent = FXMLLoader.load(getClass().getResource("/view/home.fxml"));
             Stage stage = new Stage();
             Scene scene=new Scene(parent, 1200,700);
-            scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/controller/styles.css").toExternalForm());
             stage.setScene(scene);
             stage.initStyle(StageStyle.UNDECORATED);
             stage.initModality(Modality.WINDOW_MODAL);
@@ -230,88 +228,22 @@ public class loginController extends CommonMethods implements Initializable{
      * @throws ClassNotFoundException 
      * @throws SQLException 
      */
-    private boolean checkUser() throws ClassNotFoundException, SQLException{
-        String username1=userfield.getText();
-        String password1=passfield.getText();
-
-//        String[] name = {"username", "pwd", "signInButton", "format"};
-//        String[] value = {username, password, "", "json"};
-//        JsonObject parser = CommonMethods.connection.getData("Login.jsp", name, value);
-      
- 		  String dbuser="root";
- 		 String db1="";
- 		String admin_userstore="" ;	           
- 		String  admin_passstore="";
- 		 String url = "jdbc:mysql://127.0.0.1:3306/mydb";
- 	    String username = "root";
- 	    String password = "";
-		Connection connect = (Connection) DriverManager.getConnection(url, username, password);
-
- 			
- 	      	Statement stated=null;
- 	      	stated=(Statement) connect.createStatement();
- 	      	String query1 ="select user, passcode from mydb.rprojectlogin where ID='1'";
- 	      	ResultSet rs1 = stated.executeQuery(query1);
- 	      	 while (rs1.next()) {
- 	      		admin_userstore = rs1.getString("user");	           
- 	      		admin_passstore = rs1.getString("passcode");
- 	      	 }
- 	      	 
- 	      	String query2 ="select user, passcode from mydb.rprojectlogin where ID='2'";
- 	      	ResultSet rs2 = stated.executeQuery(query2);
- 	      	 while (rs2.next()) {
- 	      		String emp_userstore = rs2.getString("user");	           
- 	      		String emp_passstore = rs2.getString("passcode");
- 	      	 }
- 	      	System.out.print("Hello "+admin_userstore+admin_passstore); 
-
- 	      
- 	             if(username1.equals(admin_userstore) && password1.equals(admin_passstore)){	         	  
- 	            	 return true;
- 	             }
- 	             else {
- 	            	 Platform.runLater(new Runnable() {
- 	                    @Override
- 	                    public void run() {
- 	                        errorlabel.setText("Error! Incorrect Password Or Username");
- 	                    }
- 	                });
- 	                return false;
- 	             }
- 	      		
- 	          /*   else if(username.getText().equals(emp_userstore) && password.getText().equals(emp_passstore)){	         	  
- 		         		Stage primaryStage= new Stage();
- 		        		FXMLLoader loader = new FXMLLoader (getClass().getResource("/view/employee.fxml"));
- 		                AnchorPane root =(AnchorPane) loader.load();
- 		        		Scene scene = new Scene(root,1000,600);
- 		        		EmployeeController ec = loader.getController();
- 		        		ec.setValues(emp_userstore, emp_passstore);
- 		        		primaryStage.setScene(scene);
- 		        		primaryStage.show();
- 		        		Stage stage = (Stage) btnlogin.getScene().getWindow();
- 		        		stage.close();
- 		             }*/
- 	             
- 	      	 
- 	      	 /*else {
-        				lblpopup.setText("Username or Password Incorrect");
-         		   }*/
- 	        
- 	  
- 	  
- 
-
-       /* if(username.equals("naji") && password.equals("naji")){
-           return true;
-        } else {
-           Platform.runLater(new Runnable() {
-               @Override
-               public void run() {
-                   errorlabel.setText("Error! Incorrect Password Or Username");
-               }
-           });
-           return false;
-        }*/
+    public void login(ActionEvent event) throws IOException, SQLException{
+    	
+    		
+    		  String login = this.userfield.getText();
+    		  String password = this.passfield.getText();
+    		  
+    		 
+    		  LoginUserModel loginUserModel = new LoginUserModel();
+    		  loginUserModel.setLogin(login);
+    		  loginUserModel.setMotDePasse(password);
+    		  
+    		  LoginUserDao b = new LoginUserDao();
+    		  b.create(loginUserModel);
+    		  Stage stage = (Stage) loginbtn.getScene().getWindow();
+    		  System.out.println("Data Inserted");
+    	
     }
 
     /**
